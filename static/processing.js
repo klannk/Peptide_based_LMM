@@ -19,6 +19,7 @@ function WaitForAnalysis(cb) {
         var file = dialog.showOpenDialog({ properties: ['openFile'] });
         file.then(function (result){
             window.file = result.filePaths[0];
+            
         });
     });
     design_button.addEventListener('click', function(){
