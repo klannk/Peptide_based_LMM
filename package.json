@@ -1,0 +1,64 @@
+{
+  "name": "PBLMM",
+  "version": "1.0.0",
+  "description": "Peptide based linear mixed models for proteomics data analysis and differential protein expression.",
+  "main": "./static/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "make-mac": "npx @electron-forge/cli make --platform darwin"
+  },
+  "keywords": [],
+  "author": "Kevin Klann",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.54",
+    "@electron-forge/maker-deb": "^6.0.0-beta.54",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.54",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
+    "@electron-forge/maker-zip": "^6.0.0-beta.54",
+    "electron": "^11.2.0"
+  },
+  "dependencies": {
+    "bootstrap": "^4.6.0",
+    "csv-parser": "^3.0.0",
+    "csv-reader": "^1.0.7",
+    "csvtojson": "^2.0.10",
+    "electron-squirrel-startup": "^1.0.0",
+    "fs": "0.0.1-security",
+    "jquery": "^3.5.1",
+    "node-csv": "^0.1.2",
+    "popper": "^1.0.1",
+    "popper.js": "^1.16.1",
+    "python-shell": "^2.0.3"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "PBLMM"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  }
+}
