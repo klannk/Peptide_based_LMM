@@ -6,10 +6,10 @@ const dialog = require('electron').dialog;
 
 
 function createWindow () {
-    window = new BrowserWindow({width: 1800, height: 1000,frame: false, webPreferences: {
+    window = new BrowserWindow({width: 1800, height: 1000,frame: true, webPreferences: {
         enableRemoteModule: true,
         nodeIntegration: true,
-        devTools: false
+        
 
     }})
     window.loadFile('./templates/main.html')
