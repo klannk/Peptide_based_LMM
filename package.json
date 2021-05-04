@@ -1,6 +1,6 @@
 {
   "name": "PBLMM",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Peptide based linear mixed models for proteomics data analysis and differential protein expression.",
   "main": "./static/main.js",
   "scripts": {

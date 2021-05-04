@@ -1,3 +1,20 @@
+'''
+# PBLMM - Peptide based linear mixed models for differential expression analysis
+# Copyright (C) 2021 Kevin Klann
+#This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'''
+
 import sys
 import pandas as pd
 import numpy as np
@@ -6,7 +23,6 @@ import warnings
 from statsmodels.stats.multitest import multipletests, local_fdr
 from scipy.stats import zscore, uniform
 import matplotlib.pyplot as plt
-import DynaTMT.DynaTMT as mePROD
 import json
 import time
 import os
@@ -30,23 +46,6 @@ def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
-def IRS_normalisation(input_file, bridge, plexes):
-    
-    channels=[col for col in input_file.columns if 'Abundance:' in col]
-    input_file=input_file.dropna(subset=channels)
-    #print(channels)
-    bridge_channels=[i for i in channels if str(bridge) in i]
-    #print(bridge_channels)
-    bridge_mean=np.array(input_file[bridge_channels].mean(axis=1))
-    cfs=input_file[bridge_channels].divide(bridge_mean, axis=0)
-    cfs_cols=cfs.columns
-    chunks_channels=list(chunks(channels,int(len(channels)/plexes)))
-    for i in range(0,len(chunks_channels),1):
-        norms=np.array(cfs[cfs_cols[i]])
-        input_file[chunks_channels[i]]=input_file[chunks_channels[i]].divide(norms,axis=0)
-    input_file=input_file.dropna(subset=channels)
-    
-    return input_file   
     
 def sum_peptides_for_proteins(input_file, channels, mpa1):
     
@@ -123,7 +122,7 @@ def peptide_based_LMM(input_file, conditions, labels=None, norm=True):
                 
             temp=grouped.get_group(i)
             vc={'Sequence':'0+Sequence'}
-            model=smf.mixedlm("value ~ variable + Sequence", temp, groups='Accession',vc_formula=vc)
+            model=smf.mixedlm("value ~ variable", temp, groups='Sequence',vc_formula=vc)
             try:
                 result=model.fit()
                 if counter == 0:
@@ -203,14 +202,14 @@ if __name__ == "__main__":
         pair.sort()
         inner_dict = {}
         comparison = str(pair[0])+ '_' + str(pair[1])
-        p_string = 'P value'+ comparison
+        p_string = 'P value_'+ comparison
         column_p = [col for col in result.columns if p_string in col]
         
         inner_dict['p_value']=result[column_p].to_numpy().flatten().tolist()
-        q_string = 'corrected P value (q value)'+ comparison
+        q_string = 'corrected P value (q value)_'+ comparison
         column_q = [col for col in result.columns if q_string in col]
         inner_dict['q_value']=result[column_q].to_numpy().flatten().tolist()
-        fc_string = 'fold_change'+ comparison
+        fc_string = 'fold_change_'+ comparison
         column_fc = [col for col in result.columns if fc_string in col]
         inner_dict['fold_change']=result[column_fc].to_numpy().flatten().tolist()
         return_data[comparison] = inner_dict
