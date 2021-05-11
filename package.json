@@ -1,6 +1,6 @@
 {
   "name": "PBLMM",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Peptide based linear mixed models for proteomics data analysis and differential protein expression.",
   "main": "./static/main.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "Kevin Klann",
-  "license": "MIT",
+  "license": "GNU GPL3",
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",

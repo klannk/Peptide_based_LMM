@@ -72,7 +72,7 @@ function WaitForAnalysis(cb) {
                 
             }
         //Invoke new python process with the Linear mixed models    
-        let pyshell = new PythonShell('../app-1.0.2/resources/app/PBLMM.py',{pythonPath : 'python'});//../app-1.0.0/resources/app
+        let pyshell = new PythonShell('../app-1.0.4/resources/app/PBLMM.py',{pythonPath : 'python'});//../app-1.0.0/resources/app
         pyshell.send(JSON.stringify(data1),{mode:'json'});//Send data to python
         let messages = new Array();
         pyshell.on('message', function(message)  {
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", plot_results);//When site is rende
 //Install dependencies by python script
 const deps = document.getElementById("dependencies");
 deps.addEventListener("click", function (){
-    let pyshell = new PythonShell('../app-1.0.2/resources/app/install_deps.py',{pythonPath : 'python3'})
+    let pyshell = new PythonShell('../app-1.0.4/resources/app/install_deps.py',{pythonPath : 'python3'})
     pyshell.on('message', function(printed)  {
         
         console.log(printed)
