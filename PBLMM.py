@@ -202,14 +202,14 @@ if __name__ == "__main__":
         pair.sort()
         inner_dict = {}
         comparison = str(pair[0])+ '_' + str(pair[1])
-        p_string = 'P value_'+ comparison
+        p_string = 'P value'+ comparison
         column_p = [col for col in result.columns if p_string in col]
         
         inner_dict['p_value']=result[column_p].to_numpy().flatten().tolist()
-        q_string = 'corrected P value (q value)_'+ comparison
+        q_string = 'corrected P value (q value)'+ comparison
         column_q = [col for col in result.columns if q_string in col]
         inner_dict['q_value']=result[column_q].to_numpy().flatten().tolist()
-        fc_string = 'fold_change_'+ comparison
+        fc_string = 'fold_change'+ comparison
         column_fc = [col for col in result.columns if fc_string in col]
         inner_dict['fold_change']=result[column_fc].to_numpy().flatten().tolist()
         return_data[comparison] = inner_dict
