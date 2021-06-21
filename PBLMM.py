@@ -194,7 +194,7 @@ if __name__ == "__main__":
         normal = False
     result = peptide_based_LMM(input_file,conditions,labels=labels,norm=normal)
     timestr=time.strftime("%Y%m%d-%H%M%S")
-    result.to_csv(os.path.abspath(os.path.join(path,"../../../../../Results"))+timestr+'_LMM_Result.txt',sep='\t')
+    result.to_csv(os.path.abspath(os.path.join(path,"../../../../../Results/"))+'/'+timestr+'_LMM_Result.txt',sep='\t')
     return_data = {}
     unique_conditions = list(set(conditions))
     pairs = tessa(unique_conditions)
