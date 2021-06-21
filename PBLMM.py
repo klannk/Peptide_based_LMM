@@ -154,7 +154,8 @@ def peptide_based_LMM(input_file, conditions, labels=None, norm=True):
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(os.path.realpath(__file__))    
+    settings_path = sys.argv[1]
+    path = settings_path
     if not os.path.exists(os.path.join(path,"./Results")):
         os.mkdir(os.path.join(path,"./Results"))
     defaults =[
@@ -162,7 +163,7 @@ if __name__ == "__main__":
             'Master Protein Accessions',
             'Abundance:',
             ]
-    settings_path = sys.argv[1]
+    
     with open(os.path.join(settings_path,'settings.json'), 'r') as infile:
         data = json.load(infile)
     

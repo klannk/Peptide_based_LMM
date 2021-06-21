@@ -16,7 +16,7 @@
 */
 
 const { PythonShell } = require("python-shell");
-const csv = require("csv-reader");
+
 const fs = require("fs");
 const { dialog } = require("electron").remote;
 const { ipcRenderer } = require("electron");
@@ -81,19 +81,58 @@ function WaitForAnalysis(cb) {
     });
     let parameter = [storage.getDataPath()]
     //Invoke new python process with the Linear mixed models
-    child(path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM.exe'),parameter, function(error, message, stderr){
-      if (error) throw error;
-      console.log(message)
-      start_button.innerText = "Start analysis"; //Reset button
-      let messages = new Array();
-      messages.push(message); //Create array of all stdout stream messages
-      console.log(JSON.parse(message)); //Returned stdout from python is stringifyed JSON
+    console.log(process.platform)
+    if (process.platform == "darwin"){
+      const start_path = path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM')
+      child(start_path,parameter, function(error, message, stderr){
+        if (error) throw error;
+        console.log(message)
+        
+        start_button.innerText = "Start analysis"; //Reset button
+        let messages = new Array();
+        messages.push(message); //Create array of all stdout stream messages
+        console.log(JSON.parse(message)); //Returned stdout from python is stringifyed JSON
+  
+        window.result = JSON.parse(messages[messages.length - 1]); //messages.length should be 1, however if longer return only first element
+        out_plots.style.display = "block";
+        console.log("Finished");
+        cb()
+      });
+    }
+    else if (process.platform =="win32"){
+      const start_path = path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM.exe')
+      child(start_path,parameter, function(error, message, stderr){
+        if (error) throw error;
+        console.log(message)
+        
+        start_button.innerText = "Start analysis"; //Reset button
+        let messages = new Array();
+        messages.push(message); //Create array of all stdout stream messages
+        console.log(JSON.parse(message)); //Returned stdout from python is stringifyed JSON
+  
+        window.result = JSON.parse(messages[messages.length - 1]); //messages.length should be 1, however if longer return only first element
+        out_plots.style.display = "block";
+        console.log("Finished");
+        cb()
+      });
+    } else {
+      const start_path = path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM.exe')
+      child(start_path,parameter, function(error, message, stderr){
+        if (error) throw error;
+        console.log(message)
+        
+        start_button.innerText = "Start analysis"; //Reset button
+        let messages = new Array();
+        messages.push(message); //Create array of all stdout stream messages
+        console.log(JSON.parse(message)); //Returned stdout from python is stringifyed JSON
+  
+        window.result = JSON.parse(messages[messages.length - 1]); //messages.length should be 1, however if longer return only first element
+        out_plots.style.display = "block";
+        console.log("Finished");
+        cb()
+      });
+    }
 
-      window.result = JSON.parse(messages[messages.length - 1]); //messages.length should be 1, however if longer return only first element
-      out_plots.style.display = "block";
-      console.log("Finished");
-      cb()
-    });
     
    
   });

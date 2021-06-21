@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['PBLMM.py'],
-             pathex=['C:\\Users\\Kevin\\Documents\\GitHub\\PBLMM'],
+             pathex=['/Users/Krissi/Documents/Klaus/PBLMM/Peptide_based_LMM'],
              binaries=[],
              datas=[],
              hiddenimports=[],
