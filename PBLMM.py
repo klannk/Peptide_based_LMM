@@ -162,8 +162,10 @@ if __name__ == "__main__":
             'Master Protein Accessions',
             'Abundance:',
             ]
-    read = sys.stdin.readlines(1)[0]
-    data = json.loads(read)
+    settings_path = sys.argv[1]
+    with open(os.path.join(settings_path,'settings.json'), 'r') as infile:
+        data = json.load(infile)
+    
     
     input_file = pd.read_csv(data['file1'],sep='\t',header=0)
     conditions=[]

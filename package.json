@@ -1,14 +1,14 @@
 {
   "name": "PBLMM",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "Peptide based linear mixed models for proteomics data analysis and differential protein expression.",
   "main": "./static/main.js",
   "scripts": {
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "package": "electron-forge package",
-    "make": "electron-forge make",
-    "make-mac": "npx @electron-forge/cli make --platform darwin"
+    "make": "electron-forge make"
+   
   },
   "keywords": [],
   "author": "Kevin Klann",
@@ -26,6 +26,7 @@
     "csv-parser": "^3.0.0",
     "csv-reader": "^1.0.7",
     "csvtojson": "^2.0.10",
+    "electron-json-storage": "^4.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "fs": "0.0.1-security",
     "jquery": "^3.5.1",
