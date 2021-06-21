@@ -6,16 +6,9 @@ PBLMM is a cross-platform application for statistical analysis of proteomics dat
 
 ### Install
 
-Run the provided installer for MacOS or Windows. You need to have python installed on your computer. The application contains a button to install necessary dependencies, so you don´t need to install them manually. 
+Run the provided installer for MacOS or Windows.
 
 The Windows Installer will install the application under /USER/AppData/Local/PBLMM. There you can find the Result files.
-
-Dependencies:
-    numpy
-    pandas 
-    statsmodels
-    scipy
-    matplotlib
 
 ### Input data
 
