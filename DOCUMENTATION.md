@@ -46,3 +46,6 @@ p_value_Control_TreatmentX, fold_change_Control_TreatmentX etc.
 The naming corresponds to the log2 ratio of the latter treatment versus the first treatment. For the above example, that would mean log2(TreatmentX/Control). A positive value interprets as more protein in TreatmentX compared to the Control.
 
 The Result file is located in the installation folder of the application.
+
+For Windows: C://User/NAME/AppData/Local/PBLMM/appVERSION/Resources/app/
+Note: AppData is a hidden folder. Change view settings to see the folder.
