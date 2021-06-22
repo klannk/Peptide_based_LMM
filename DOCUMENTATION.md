@@ -47,5 +47,5 @@ The naming corresponds to the log2 ratio of the latter treatment versus the firs
 
 The Result file is located in the installation folder of the application.
 
-For Windows: C://User/NAME/AppData/Local/PBLMM/appVERSION/Resources/app/
+For Windows: C://User/NAME/AppData/Local/PBLMM/appVERSION/Resources/app/data/
 Note: AppData is a hidden folder. Change view settings to see the folder.
