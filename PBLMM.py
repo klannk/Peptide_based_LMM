@@ -21,8 +21,6 @@ import numpy as np
 import statsmodels.formula.api as smf
 import warnings
 from statsmodels.stats.multitest import multipletests, local_fdr
-from scipy.stats import zscore, uniform
-import matplotlib.pyplot as plt
 import json
 import time
 import os
@@ -30,15 +28,23 @@ import os
 warnings.filterwarnings("ignore")
 
 def normalization(input_file, channels):
-   
-    input_file=input_file.dropna(subset=channels)
-    
-    minimum=np.argmin(input_file[channels].sum().values)
-    summed=np.array(input_file[channels].sum().values)
-    minimum=summed[minimum]
-    norm_factors=summed/minimum
-    input_file[channels]=input_file[channels].divide(norm_factors, axis=1)
-    
+    '''
+    #Performs total intensity normalisation. Besides input file the function needs an array of all
+    column names that contain the quantifications to be normalized (channels).
+    '''
+    # remove missing value rows
+    #input_file = input_file.dropna(subset=channels)
+    print("Normalization")
+    # calculate summed intensity for each column and search minimum index
+    minimum = np.argmin(input_file[channels].sum().values)
+    summed = np.array(input_file[channels].sum().values)
+    minimum = summed[minimum]
+    # calculuate norm factors
+    norm_factors = summed/minimum
+    # normalize input with norm factors
+    input_file[channels] = input_file[channels].divide(
+        norm_factors, axis=1)
+    print("Normalization done")
     return input_file
 
 def chunks(l, n):
@@ -48,22 +54,31 @@ def chunks(l, n):
 
     
 def sum_peptides_for_proteins(input_file, channels, mpa1):
-    
-    
-    mpa=[col for col in input_file.columns if mpa1 in col]
-    mpa=mpa[0] 
+    '''
+    This function takes Peptide level (or PSM) dataframes and performs a sum based rollup to protein level.
+    the channels variable takes an array of column names that contain the quantifictions. You can create such an
+    array via this command:
+    channels = [col for col in PSM.columns if 'Abundance:' in col]
+    mpa1 variable contains a string that is included in the Accession column. The function will search for the column containing the string
+    and use it for rollup.
+    Returns Protein level DF.
+    '''
    
-    PSM_grouped=input_file.groupby(by=[mpa])
-    result={}
+    
+    print('Calculate Protein quantifications from PSM')
+    mpa = [col for col in input_file.columns if mpa1 in col]
+    mpa = mpa[0]
+    PSM_grouped = input_file.groupby(by=[mpa])
+    result = {}
     for group in PSM_grouped.groups:
-        temp=PSM_grouped.get_group(group)
-        sums=temp[channels].sum()
-        result[group]=sums
-    
-    protein_df=pd.DataFrame.from_dict(result, orient='index',columns=channels)
-    
-
+        temp = PSM_grouped.get_group(group)
+        sums = temp[channels].sum()
+        result[group] = sums
+    protein_df = pd.DataFrame.from_dict(
+        result, orient='index', columns=channels)
+    print("Combination done")
     return protein_df
+
 
 def tessa(source):
     result = []
@@ -72,88 +87,113 @@ def tessa(source):
                     result.append([source[p1],source[p2]])
     return result
 
-def peptide_based_LMM(input_file, conditions, labels=None, norm=True):
-    if labels is not None:
-        columns = labels
+def peptide_based_lmm(self, input_file,labels, conditions,drop_missing=False, techreps=None, plexes=None, norm=normalization):
+
+    columns = labels
+    self.pair_names = []
+    channels = [col for col in input_file.columns if columns[2] in col]
+    if norm is not None:
+        input_file = norm(input_file, channels)
     else:
-        columns = [
-            'Annotated Sequence',
-            'Master Protein Accessions',
-            'Abundance:',
-            ]
-    channels=[col for col in input_file.columns if columns[2] in col]
+        if drop_missing == True:
+            input_file = input_file.dropna(subset=channels)
+        else:
+            pass
     
-    if norm is True:
-        input_file = normalization(input_file, channels)
-    else:
-        input_file=input_file.dropna(subset=channels)
-        
-    ##Protein level quantifications
-    protein_data = sum_peptides_for_proteins(input_file, channels, columns[1])
-    ###Prepare Peptide data for LMM
+    # Protein level quantifications
+    
+    protein_data = sum_peptides_for_proteins(
+        input_file=input_file, channels=channels)
+    # Prepare Peptide data for LMM
     Peptides_for_LM = input_file[channels]
-
-    sequence=[col for col in input_file.columns if columns[0] in col]
-    sequence=sequence[0]
-
-    Peptides_for_LM['Sequence']=input_file[sequence]
-
-    Acc=[col for col in input_file.columns if columns[1] in col]
-    Acc=Acc[0]
-    Peptides_for_LM['Accession']=input_file[Acc]
-
-    melted_Peptides=Peptides_for_LM.melt(id_vars=['Accession','Sequence'],value_vars=channels)
-    ##Replace column names with conditions
-    melted_Peptides.replace(to_replace=channels, value=conditions,inplace=True)
+    sequence = [col for col in input_file.columns if columns[0] in col]
+    sequence = sequence[0]
+    Peptides_for_LM['Sequence'] = input_file[sequence]
+    Acc = [col for col in input_file.columns if columns[1] in col]
+    Acc = Acc[0]
+    Peptides_for_LM['Accession'] = input_file[Acc]
+    melted_Peptides = Peptides_for_LM.melt(
+        id_vars=['Accession', 'Sequence'], value_vars=channels)
+    # Replace column names with conditions
+    
+    
+    if  techreps == None:
+        pass
+    else:
+        melted_Peptides['Techreps']=melted_Peptides['variable']
+        melted_Peptides['Techreps'].replace(to_replace=channels,
+                            value=techreps, inplace=True)
+    
+    if  plexes == None:
+        pass
+    else:
+        melted_Peptides['Multiplex']=melted_Peptides['variable']
+        melted_Peptides['Multiplex'].replace(to_replace=channels,
+                            value=plexes, inplace=True)
+    melted_Peptides['variable'].replace(to_replace=channels,
+                            value=conditions, inplace=True)    
     unique_conditions = list(set(conditions))
+    
     pairs = tessa(unique_conditions)
-
+    
     for pair in pairs:
         pair.sort()
-        temp=melted_Peptides[(melted_Peptides['variable'].str.contains(pair[0],regex=False))|(melted_Peptides['variable'].str.contains(pair[1],regex=False))]
-        temp['value']=np.log2(temp['value'])
-        temp=temp.dropna()
-        grouped=temp.groupby(by=['Accession'])
-        result_dict={}
+        temp = melted_Peptides[(melted_Peptides['variable'].str.fullmatch(pair[0])) | (
+            melted_Peptides['variable'].str.fullmatch(pair[1]))]
+        temp['value'] = np.log2(temp['value'])
+        temp = temp.dropna()
+        grouped = temp.groupby(by=['Accession'])
+        result_dict = {}
         fold_changes = []
-        counter=0
+        counter = 0
         for i in grouped.groups:
-            
+            temp2 = grouped.get_group(i)
+            vc = {'Sequence': '0+Sequence'}
+            #Base model
+            model_form = "value ~ variable"
+            #Extent model based on data
+            if techreps is not None:
                 
-            temp=grouped.get_group(i)
-            vc={'Sequence':'0+Sequence'}
-            model=smf.mixedlm("value ~ variable", temp, groups='Sequence',vc_formula=vc)
+                vc['Techreps'] = '0+C(Techreps)'
+            else:
+                pass
+            
+        
+            if plexes is not None:
+                
+                vc['Multiplex'] = '0+C(Multiplex)'
+            else:
+                pass
+            
+            model = smf.mixedlm(
+                model_form, temp2, groups='Sequence', vc_formula=vc)
             try:
-                result=model.fit()
-                if counter == 0:
-                   
-                    counter = counter + 1
-                else:
-                    pass
+                result = model.fit()
+ 
                 fc = result.params[1]
                 pval = result.pvalues[1]
                 fold_changes.append(fc)
-                result_dict[i]=pval
+                result_dict[i] = pval
             except:
                 pass
-        
-        result_df_peptides_LMM=pd.DataFrame.from_dict(result_dict, orient='index', columns=['P value'])
-        result_df_peptides_LMM['fold_change']=np.array(fold_changes)
-        ##Multiple testing correction:
-        result_df_peptides_LMM['P value'] = result_df_peptides_LMM['P value'].fillna(value=1)
-        pvals = result_df_peptides_LMM['P value'].to_numpy()
-        
-        reject, pvals_corrected,a,b= multipletests(pvals, method='fdr_bh')
-       
-        result_df_peptides_LMM['corrected P value (q value)']=pvals_corrected
-        
-        comparison = str(pair[0])+ '_' + str(pair[1])
-        result_df_peptides_LMM = result_df_peptides_LMM.add_suffix(comparison)
+        result_df_peptides_LMM = pd.DataFrame.from_dict(
+            result_dict, orient='index', columns=['p_value'])
+        result_df_peptides_LMM['fold_change'] = np.array(fold_changes)
+        # Multiple testing correction:
+        result_df_peptides_LMM['p_value'] = result_df_peptides_LMM['p_value'].fillna(
+            value=1)
+        pvals = result_df_peptides_LMM['p_value'].to_numpy()
+        reject, pvals_corrected, a, b = multipletests(
+            pvals, method='fdr_bh')
+        result_df_peptides_LMM['q_value'] = pvals_corrected
+        comparison = str(pair[0]) + '_' + str(pair[1])
+        result_df_peptides_LMM = result_df_peptides_LMM.add_suffix(
+            comparison)
         protein_data = protein_data.join(result_df_peptides_LMM)
+   
     return protein_data
 
-
-if __name__ == "__main__":
+def main():
     settings_path = sys.argv[1]
     path = settings_path
     if not os.path.exists(os.path.join(path,"./Results")):
@@ -170,15 +210,18 @@ if __name__ == "__main__":
     
     input_file = pd.read_csv(data['file1'],sep='\t',header=0)
     conditions=[]
-    with open(data['file2'],'r') as design:
-        read = design.read()
-        
-        
-        splitted = read.split('\t')
-        for element in splitted:
-            element = element.strip('\n')
-            conditions.append(element)
+    design_matrix=pd.read_csv(data['file2'],sep='\t',header=0)
+    conditions = list(design_matrix['conditions'])
+    try:
+        techreps = list(design_matrix['techreps'])
+    except KeyError:
+        techreps = None
+    try:
+        multiplex = list(design_matrix['multiplex'])
+    except KeyError:
+        multiplex = None
     
+     
 
 
     labels = [data['seq_col'],data['acc_col'],data['abun_col']]
@@ -189,10 +232,10 @@ if __name__ == "__main__":
         else:
             pass
     if data['norm']=='Yes':
-        normal = True
+        normal = normalization
     else:
-        normal = False
-    result = peptide_based_LMM(input_file,conditions,labels=labels,norm=normal)
+        normal = None
+    result = peptide_based_lmm(input_file,conditions,labels=labels,norm=normal, plexes=multiplex,techreps=techreps)
     timestr=time.strftime("%Y%m%d-%H%M%S")
     result.to_csv(os.path.join(path,"./Results/")+timestr+'_LMM_Result.txt',sep='\t')
     return_data = {}
@@ -218,3 +261,6 @@ if __name__ == "__main__":
         return_data[comparison] = inner_dict
         
     print(json.dumps(return_data))
+
+if __name__ == "__main__":
+    main()
