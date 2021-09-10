@@ -84,8 +84,8 @@ function WaitForAnalysis(cb) {
     console.log(process.platform)
     if (process.platform == "darwin"){
       const start_path = path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM')
-      child(start_path,parameter, function(error, message, stderr){
-        if (error) throw error;
+      child(start_path,parameter,{maxBuffer: 1024 * 2048}, function(error, message, stderr){
+        if (error) throw start_button.innerText = error;
         console.log(message)
         
         start_button.innerText = "Start analysis"; //Reset button
@@ -101,8 +101,8 @@ function WaitForAnalysis(cb) {
     }
     else if (process.platform =="win32"){
       const start_path = path.join(require('electron').remote.app.getAppPath(),'./dist/PBLMM.exe')
-      child(start_path,parameter, function(error, message, stderr){
-        if (error) throw error;
+      child(start_path,parameter,{maxBuffer: 1024 * 2048}, function(error, message, stderr){
+        if (error) throw start_button.innerText = error;;
         console.log(message)
         
         start_button.innerText = "Start analysis"; //Reset button

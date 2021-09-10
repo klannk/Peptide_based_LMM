@@ -87,10 +87,10 @@ def tessa(source):
                     result.append([source[p1],source[p2]])
     return result
 
-def peptide_based_lmm(self, input_file,labels, conditions,drop_missing=False, techreps=None, plexes=None, norm=normalization):
+def peptide_based_lmm(input_file,labels, conditions,drop_missing=False, techreps=None, plexes=None, norm=normalization):
 
     columns = labels
-    self.pair_names = []
+    
     channels = [col for col in input_file.columns if columns[2] in col]
     if norm is not None:
         input_file = norm(input_file, channels)
@@ -103,7 +103,7 @@ def peptide_based_lmm(self, input_file,labels, conditions,drop_missing=False, te
     # Protein level quantifications
     
     protein_data = sum_peptides_for_proteins(
-        input_file=input_file, channels=channels)
+        input_file=input_file, channels=channels, mpa1=columns[1])
     # Prepare Peptide data for LMM
     Peptides_for_LM = input_file[channels]
     sequence = [col for col in input_file.columns if columns[0] in col]
@@ -235,7 +235,7 @@ def main():
         normal = normalization
     else:
         normal = None
-    result = peptide_based_lmm(input_file,conditions,labels=labels,norm=normal, plexes=multiplex,techreps=techreps)
+    result = peptide_based_lmm(input_file,conditions=conditions,labels=labels,norm=normal, plexes=multiplex,techreps=techreps)
     timestr=time.strftime("%Y%m%d-%H%M%S")
     result.to_csv(os.path.join(path,"./Results/")+timestr+'_LMM_Result.txt',sep='\t')
     return_data = {}

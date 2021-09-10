@@ -21,11 +21,7 @@ Note: The column names can differ but need to be specified. The input file can a
 
 The quantification columns should share a string that defines a quantification column, as seen as "Abundance" in the above example.
 
-Additionally you need a tab delimited file containing the treatment specifications according to the order in your input file: E.g.
-
-Control Control Control Treatment1  Treatment1  Treatment1 ...
-
-Note: The design file should only contain the treatments, no column headers or anything else. The treatments should be separated by tabs.
+Additionally you need a tab delimited file containing the treatment specifications according to the order in your input file and potential technical replicates and multiplexes or MS runs. The first column of that design file should be named "conditions" and contain the treatment conditions in the same order as the abundance columns in your PSM/Peptide file. Conditions with the same name will be treated as replicates and grouped together for analysis. If applicable the second column contains the technical replicates and is named "techreps", while the third columns contains MS run identificator and is called "multiplex". If the last two columns are not present, all samples are assumed to be independent biological replicates.
 
 ### Calculations
 
@@ -33,7 +29,7 @@ PBLMM will automatically calculate the differential expression of all possible c
 
 In the implemented statistical model, the expression of each protein is separately modelled by a linear mixed effects model:
 y(i)= ß0+βXi+ui+εi
-Where yi denotes expression of peptide i, β_0 is the individual protein’s global intercept, βXi is the linear combination of indicator variables encoding categorical experimental conditions, ui is the additive random intercept of peptide i with ui ~ N(0,σ2u), and εi are residual errors with εi ~ N(0,σ2ε). Note that this collapses to ordinary linear regression when there are no multiple peptide measurements per protein.
+Where yi denotes expression of peptide i, β_0 is the individual protein’s global intercept, βXi is the linear combination of indicator variables encoding categorical experimental conditions, ui is the additive random intercept of peptide i with ui ~ N(0,σ2u), and εi are residual errors with εi ~ N(0,σ2ε). Note that this collapses to ordinary linear regression when there are no multiple peptide measurements per protein. Additionally, the variance of the response variable is defined by additional variance components: The peptide sequence, the technical replicates, the multiplex it was run in (in case of TMT data) and residual unexplained variance.  
 
 ### Results
 
