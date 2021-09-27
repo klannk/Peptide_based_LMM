@@ -34,7 +34,6 @@ def normalization(input_file, channels):
     '''
     # remove missing value rows
     #input_file = input_file.dropna(subset=channels)
-    print("Normalization")
     # calculate summed intensity for each column and search minimum index
     minimum = np.argmin(input_file[channels].sum().values)
     summed = np.array(input_file[channels].sum().values)
@@ -44,7 +43,6 @@ def normalization(input_file, channels):
     # normalize input with norm factors
     input_file[channels] = input_file[channels].divide(
         norm_factors, axis=1)
-    print("Normalization done")
     return input_file
 
 def chunks(l, n):
@@ -65,7 +63,6 @@ def sum_peptides_for_proteins(input_file, channels, mpa1):
     '''
    
     
-    print('Calculate Protein quantifications from PSM')
     mpa = [col for col in input_file.columns if mpa1 in col]
     mpa = mpa[0]
     PSM_grouped = input_file.groupby(by=[mpa])
@@ -76,7 +73,6 @@ def sum_peptides_for_proteins(input_file, channels, mpa1):
         result[group] = sums
     protein_df = pd.DataFrame.from_dict(
         result, orient='index', columns=channels)
-    print("Combination done")
     return protein_df
 
 
